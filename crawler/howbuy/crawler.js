@@ -7,7 +7,6 @@ var sprintf = require('sprintf-js').sprintf;
 var file = require('fs');
 var window = {};
 
-
 var product_url = "http://static.howbuy.com/min/f=/js/data/pfundJson_v2881.js";
 var base_url = "http://static.howbuy.com/min/f=/upload/auto/script/fund/smhb_%s_v160.js";
 
@@ -36,19 +35,32 @@ function get_product(product){
 			console.log("callbacking with "+product);
 			try {
 				var ret = eval(data+"JzzsDateObj");
-				util.inspect(ret.navList);
-				// var writer = new csv.CsvWriter(process.stdout);
-				var writer = new csv.createCsvFileWriter("data/" + product+".csv");
+				var file_content = [];
 				for (line in ret.navList) {
 					var content = ret.navList[line].split(",");
 					var filter_content = new Array();
 					filter_content[0] = sprintf("%04d-%02d-%02d",parseInt(content[0]),parseInt(content[1])+1,parseInt(content[2]));
-					filter_content[1] = parseFloat(content[6]) / 100;
+					filter_content[1] = parseFloat(content[6]) / ret.jzdw[0];
 					filter_content[2] = product; 
 
-					writer.writeRecord(filter_content);
+					file_content.push(filter_content.join(","))
 				}
-//				writer.end();
+				file.writeFile("data/" + product+".csv.tmp",file_content.join("\n"));
+				file.rename("data/" + product+".csv.tmp","data/" + product+".csv");
+
+
+//				util.inspect(ret.navList);
+//				var writer = new csv.createCsvFileWriter("data/" + product+".csv");
+//				for (line in ret.navList) {
+//					var content = ret.navList[line].split(",");
+//					var filter_content = new Array();
+//					filter_content[0] = sprintf("%04d-%02d-%02d",parseInt(content[0]),parseInt(content[1])+1,parseInt(content[2]));
+//					filter_content[1] = parseFloat(content[6]) / 100;
+//					filter_content[2] = product; 
+//
+//					writer.writeRecord(filter_content);
+//				}
+////				writer.end();
 			}
 			catch(e) {
 				console.log("Hitting some problem with " + product +":" + e);
