@@ -84,11 +84,20 @@ http.get(product_url, function(res) {
 	});
 	res.on('end',function() {
 		console.log("all products ...")
-		ret = eval(products +"window.product_pfund");
+		var ret = eval(products +"window.product_pfund");
+		var headers = Object.keys(ret[0]);
+		var contents = [];
+		contents.push(headers.join(","));
 		for (pi in ret) {
 			var p = ret[pi].code;
 			get_product_wrapper(p);
+			var line = [];
+			for (h in headers){
+				line.push(ret[pi][headers[h]]);
+			}
+			contents.push(line.join(","));
 		}
+		file.writeFile("funds.csv",contents.join("\n"));
 	});
 
 }).on('error', function(e) {
